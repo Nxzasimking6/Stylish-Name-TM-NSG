@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Style Engine - 1000+ Edition</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Michroma&family=Exo+2:wght@300;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --neon-color: #00d2ff;
+            --secondary-color: #ff007f;
+            --bg-dark: #050505;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Exo 2', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            /* অটো কালার চেঞ্জ এনিমেশন */
+            animation: colorShift 20s infinite alternate;
+        }
+
+        @keyframes colorShift {
+            0% { --neon-color: #00d2ff; --secondary-color: #ff007f; }
+            33% { --neon-color: #00ff88; --secondary-color: #00d2ff; }
+            66% { --neon-color: #ffcc00; --secondary-color: #ff007f; }
+            100% { --neon-color: #ff007f; --secondary-color: #00ff88; }
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        header {
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2rem, 8vw, 5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            color: white;
+            text-shadow: 0 0 20px var(--neon-color);
+            letter-spacing: 5px;
+            transition: 0.5s;
+        }
+
+        .main-engine {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .control-panel {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+
+        .input-wrapper {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--neon-color);
+            border-radius: 20px;
+            padding: 10px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            transition: 0.5s;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            padding: 15px;
+            font-family: 'Michroma', sans-serif;
+            outline: none;
+            text-align: center;
+        }
+
+        .gen-btn {
+            width: 100%;
+            max-width: 500px;
+            background: linear-gradient(45deg, var(--neon-color), var(--secondary-color));
+            color: #fff;
+            border: none;
+            padding: 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: 0.4s;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+        }
+
+        .gen-btn:hover {
+            transform: scale(1.02);
+            filter: brightness(1.2);
+            box-shadow: 0 0 40px var(--neon-color);
+        }
+
+        .results-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .style-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: 0.3s;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .style-card:hover {
+            border-color: var(--neon-color);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .styled-name {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 20px;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+
+        .copy-trigger {
+            background: transparent;
+            border: 1px solid var(--neon-color);
+            color: var(--neon-color);
+            padding: 10px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .copy-trigger:hover {
+            background: var(--neon-color);
+            color: #000;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary-color);
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: bold;
+            display: none;
+            z-index: 1000;
+        }
+
+        footer {
+            text-align: center;
+            padding: 60px;
+            opacity: 0.5;
+            letter-spacing: 3px;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div id="toast">COPIED SUCCESSFULLY!</div>
+
+<header>
+    <h1>ULTRA ENGINE</h1>
+    <p style="color: var(--neon-color)">1000+ UNIQUE STYLES & DYNAMIC COLORS</p>
+</header>
+
+<div class="main-engine">
+    <div class="control-panel">
+        <div class="input-wrapper">
+            <input type="text" id="targetInput" placeholder="TYPE YOUR NAME..." maxlength="30">
+        </div>
+        <button class="gen-btn" onclick="generateInfinityStyles()">GENERATE 1000+ STYLES</button>
+    </div>
+
+    <div class="results-grid" id="resultContainer"></div>
+</div>
+
+<footer>&copy; 2026 NEXUS GRAPHICS STUDIO</footer>
+
+<script>
+    // Particle Animation
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function initCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2;
+            this.vX = Math.random() * 1 - 0.5;
+            this.vY = Math.random() * 1 - 0.5;
+        }
+        update() {
+            this.x += this.vX; this.y += this.vY;
+            if(this.x < 0 || this.x > canvas.width) this.vX *= -1;
+            if(this.y < 0 || this.y > canvas.height) this.vY *= -1;
+        }
+        draw() {
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+        }
+    }
+
+    window.addEventListener('resize', initCanvas);
+    initCanvas();
+    for(let i=0; i<100; i++) particles.push(new Particle());
+
+    function animate() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    // 1000+ Styles Logic
+    const fontMaps = [
+        {'a':'𝔸','b':'𝔹','c':'ℂ','d':'𝔻','e':'𝔼','f':'𝔽','g':'𝔾','h':'ℍ','i':'𝕀','j':'𝕁','k':'𝕂','l':'𝕃','m':'𝕄','n':'ℕ','o':'𝕆','p':'ℙ','q':'ℚ','r':'ℝ','s':'𝕊','t':'𝕋','u':'𝕌','v':'𝕍','w':'𝕎','x':'𝕏','y':'𝕐','z':'ℤ'},
+        {'a':'𝓐','b':'𝓑','c':'𝓒','d':'𝓓','e':'𝓔','f':'𝓕','g':'𝓖','h':'𝓗','i':'𝓘','j':'𝓙','k':'𝓚','l':'𝓛','m':'𝓜','n':'𝓝','o':'','p':'𝓟','q':'𝓠','r':'𝓡','s':'𝓢','t':'𝓣','u':'𝓤','v':'𝓥','w':'𝓦','x':'𝓧','y':'𝓨','z':'𝓩'},
+        {'a':'卂','b':'乃','c':'匚','d':'ᗪ','e':'乇','f':'千','g':'Ꮆ','h':'卄','i':'丨','j':'ﾌ','k':'Ҝ','l':'ㄥ','m':'爪','n':'几','o':'ㄖ','p':'卩','q':'Ɋ','r':'尺','s':'丂','t':'ㄒ','u':'ㄩ','v':'ᐯ','w':'山','x':'乂','y':'ㄚ','z':'乙'},
+        {'a':'α','b':'в','c':'¢','d':'∂','e':'є','f':'ƒ','g':'g','h':'н','i':'ι','j':'נ','k':'к','l':'ℓ','m':'м','n':'η','o':'σ','p':'ρ','q':'զ','r':'я','s':'ѕ','t':'т','u':'υ','v':'ν','w':'ω','x':'χ','y':'у','z':'z'},
+        {'a':'ⓐ','b':'ⓑ','c':'ⓒ','d':'ⓓ','e':'ⓔ','f':'ⓕ','g':'ⓖ','h':'ⓗ','i':'ⓘ','j':'ⓙ','k':'ⓚ','l':'ⓛ','m':'ⓜ','n':'ⓝ','o':'ⓞ','p':'ⓟ','q':'ⓠ','r':'ⓡ','s':'ⓢ','t':'ⓣ','u':'ⓤ','v':'ⓥ','w':'ⓦ','x':'ⓧ','y':'ⓨ','z':'ⓩ'}
+    ];
+
+    const decorStarts = ["꧁༒", "⚔️꧁", "🔱༺", "👑꧁", "⚡『", "💎༺", "🔥◥", "░▒▓", "💠✨", "☠️⛓️", "❃❂", "₪₪₪", "◢◤", "ミ★", "『🔱』", "【★】", "༺♛", "◥◣"];
+    const decorEnds = ["༒꧂", "꧂⚔️", "༻🔱", "꧂👑", "』⚡", "༻💎", "◤🔥", "▓▒░", "✨💠", "⛓️☠️", "❂❃", "₪₪₪", "◥◣", "★彡", "『🔱』", "【★】", "♛༻", "◢◤"];
+
+    function generateInfinityStyles() {
+        const name = document.getElementById("targetInput").value.trim() || "ZASIM PRO";
+        const container = document.getElementById("resultContainer");
+        container.innerHTML = "";
+
+        // জেনারেটর লজিক যা ১০০০+ কম্বিনেশন তৈরি করবে
+        for (let i = 0; i < 1000; i++) {
+            let font = fontMaps[i % fontMaps.length];
+            let start = decorStarts[Math.floor(Math.random() * decorStarts.length)];
+            let end = decorEnds[Math.floor(Math.random() * decorEnds.length)];
+            
+            let styledText = name.split('').map(c => font[c.toLowerCase()] || c).join('');
+            let final = `${start} ${styledText} ${end}`;
+
+            const card = document.createElement("div");
+            card.className = "style-card";
+            card.innerHTML = `
+                <span class="styled-name">${final}</span>
+                <button class="copy-trigger" onclick="copyName('${final}')">COPY STYLE</button>
+            `;
+            container.appendChild(card);
+        }
+    }
+
+    function copyName(text) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => showToast());
+        } else {
+            let t = document.createElement("textarea"); t.value = text;
+            document.body.appendChild(t); t.select(); document.execCommand('copy');
+            document.body.removeChild(t); showToast();
+        }
+    }
+
+    function showToast() {
+        const t = document.getElementById("toast");
+        t.style.display = "block";
+        setTimeout(() => t.style.display = "none", 2000);
+    }
+
+    window.onload = () => {
+        document.getElementById("targetInput").value = "PRO ZASIM";
+        generateInfinityStyles();
+    };
+</script>
+
+</body>
+</html>
